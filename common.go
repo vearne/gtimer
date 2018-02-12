@@ -16,9 +16,11 @@ type Item struct {
 	priority int64    // The priority of the item in the queue.
 	// The index is needed by update and is maintained by the heap.Interface methods.
 	index int // The index of the item in the heap.
+	// when task is ready, execute OnTrigger function
 	OnTrigger func(time.Time, string)
 }
 
+// triggerTime is time of the task should be execute
 func NewDelayedItemFunc(triggerTime time.Time, value string, f func(time.Time, string)) *Item{
 	item := Item{}
 	item.priority = triggerTime.UnixNano()
