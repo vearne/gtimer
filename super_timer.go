@@ -18,6 +18,7 @@ type SuperTimer struct{
 }
 
 
+
 func NewSuperTimer(workCount int)*SuperTimer{
 	timer := SuperTimer{}
 	timer.lock = &sync.Mutex{}
@@ -29,39 +30,41 @@ func NewSuperTimer(workCount int)*SuperTimer{
 	timer.RunningFlag = true
 
 	for i :=0; i < timer.WorkerCount; i++ {
-		go func(){
-			timer.Wgp.Add(1)
-			defer timer.Wgp.Done()
-			for ;timer.RunningFlag; {
-				select {
-					case <- timer.ExitChan:
-						log.Debug("ExitChan")
-						break
-					case <- timer.UniTimer.C:
-						item := timer.Take()
-						log.Debugf("[consumer]%v\n", item)
-						if item != nil {
-							log.Debugf("[consumer]%v, item:%v, %v\n", time.Now(), item.priority, item.value)
-							t := time.Unix(item.priority/1000000000, item.priority%1000000000)
-							item.OnTrigger(t, item.value)
-						}
-				}
-			}
-			log.Debugf("worker exit")
-		}()
+		go timer.Consume()
 	}
 	return &timer
+}
+
+func (timer *SuperTimer) Consume(){
+	timer.Wgp.Add(1)
+	defer timer.Wgp.Done()
+	for ;timer.RunningFlag; {
+		select {
+			case <- timer.ExitChan:
+				log.Debug("ExitChan")
+				break
+			case <- timer.UniTimer.C:
+				item := timer.Take()
+				log.Debugf("[consumer]%v\n", item)
+				if item != nil {
+					log.Debugf("[consumer]%v, item:%v, %v\n", time.Now(), item.priority, item.value)
+					t := time.Unix(item.priority/1000000000, item.priority%1000000000)
+					item.OnTrigger(t, item.value)
+				}
+		}
+	}
+	log.Debugf("worker exit")
 }
 
 func (st *SuperTimer) Add(pItem *Item){
 	st.lock.Lock()
 	defer st.lock.Unlock()
 	heap.Push(&st.PQ, pItem)
-	log.Infof("[producer] PQ size:%v", len(st.PQ))
+	log.Debugf("[producer] PQ size:%v", len(st.PQ))
 	st.PQ.Dump()
 	peek := st.PQ.Peek().(*Item)
 	if peek == pItem{
-		log.Infof("[producer] reset:%v", pItem.GetDelay())
+		log.Debugf("[producer] reset:%v", pItem.GetDelay())
 		st.UniTimer.Reset(pItem.GetDelay())
 	}
 }
@@ -69,11 +72,11 @@ func (st *SuperTimer) Add(pItem *Item){
 func (st *SuperTimer) Take() *Item{
 	st.lock.Lock()
 	defer st.lock.Unlock()
-	log.Infof("[producer] PQ size:%v", len(st.PQ))
+	log.Debugf("[producer] PQ size:%v", len(st.PQ))
 	st.PQ.Dump()
 	if len(st.PQ) <= 0 {
 		st.UniTimer.Reset(time.Second * 5)
-		log.Infof("[consumer]reset %v", 5)
+		log.Debugf("[consumer]reset %v", 5)
 		return nil
 	}
 
@@ -81,7 +84,7 @@ func (st *SuperTimer) Take() *Item{
 	target:=item.(*Item);
 	if target.GetDelay() > 0{
 		st.UniTimer.Reset(target.GetDelay())
-		log.Infof("[consumer]reset %v, target:%v, now:%v", target.GetDelay(), target.priority, time.Now().UnixNano())
+		log.Debugf("[consumer]reset %v, target:%v, now:%v", target.GetDelay(), target.priority, time.Now().UnixNano())
 		return nil
 	}
 	
@@ -106,3 +109,6 @@ func (st *SuperTimer) Wait(){
 	st.Wgp.Wait()
 }
 
+func (st *SuperTimer) Size() int{
+	return len(st.PQ)
+}
