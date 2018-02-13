@@ -106,21 +106,21 @@ type Item struct {
 }
 ```
 
-## Performance   
+## Performance
 
-`CPU Model Name`: 2.3 GHz Intel Core i5   
-`CPU Processors`: 4   
-`Memory`: 8GB    
+`CPU Model Name`: 2.3 GHz Intel Core i5     
+`CPU Processors`: 4     
+`Memory`: 8GB   
 
 ### Test Results    
 
+|produce_goroutines_count| consume_goroutines_count | qps |
+|:---|:---|:---|:---|
+|1|1|10000|
+|5|1|10000|
+|1|5|10000|
+|5|5|10000|
 
-|produce goroutines count|consume goroutines count|qps|     
-|:---|:---|:---|:---|   
-|1|1|10000|   
-|5|1|10000|   
-|1|5|10000|   
-|5|5|10000|   
 
 
 
