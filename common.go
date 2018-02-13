@@ -29,7 +29,7 @@ func NewDelayedItemFunc(triggerTime time.Time, value string, f func(time.Time, s
 	return &item
 }
 
-func (item Item) GetDelay() time.Duration{
+func (item *Item) GetDelay() time.Duration{
 	return time.Duration(item.priority - time.Now().UnixNano())
 }
 
