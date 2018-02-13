@@ -61,7 +61,6 @@ func (st *SuperTimer) Add(pItem *Item){
 	defer st.lock.Unlock()
 	heap.Push(&st.PQ, pItem)
 	log.Debugf("[producer] PQ size:%v", len(st.PQ))
-	st.PQ.Dump()
 	peek := st.PQ.Peek().(*Item)
 	if peek == pItem{
 		log.Debugf("[producer] reset:%v", pItem.GetDelay())
@@ -73,7 +72,6 @@ func (st *SuperTimer) Take() *Item{
 	st.lock.Lock()
 	defer st.lock.Unlock()
 	log.Debugf("[producer] PQ size:%v", len(st.PQ))
-	st.PQ.Dump()
 	if len(st.PQ) <= 0 {
 		st.UniTimer.Reset(time.Second * 5)
 		log.Debugf("[consumer]reset %v", 5)
