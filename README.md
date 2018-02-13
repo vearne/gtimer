@@ -13,6 +13,7 @@ timer -> delayqueue -> priorityqueue -> heap
 
 # Installation
 ## Install:
+
 ```
 go get -u github.com/vearne/gtimer
 ```
@@ -40,10 +41,11 @@ import (
 
 
 func main(){
+	t1 := time.Now()
 	wg := sync.WaitGroup{}
-	timer := gtimer.NewSuperTimer(5)
+	timer := gtimer.NewSuperTimer(1)
 	// concurrent push task
-	for i:=0;i<3;i++{
+	for i:=0;i<5;i++{
 		wg.Add(1)
 		go push(timer, "worker" + strconv.Itoa(i))
 		wg.Done()
@@ -53,11 +55,20 @@ func main(){
 	go func(){
 		log.Infof("[start]try to stop")
 		time.Sleep(5 * time.Second)
+		for {
+			if timer.Size() > 0{
+				time.Sleep(2)
+			}else{
+				break
+			}
+		}
 		timer.Stop()
 		log.Infof("[end]try to stop")
 	}()
 	// wait until stop
 	timer.Wait()
+	t2 := time.Now()
+	log.Infof("cost:%v\n", t2.Sub(t1))
 
 }
 
@@ -67,14 +78,12 @@ func DefaultAction(t time.Time, value string){
 
 func push(timer *gtimer.SuperTimer, name string){
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i:=0;i< 10;i++{
+	for i:=0;i< 3000;i++{
 		now := time.Now()
-		t := now.Add(time.Second * time.Duration(r.Int63n(5)) + 3)
-		log.Infof("[produce] now:%v, target:%v\n", now.UnixNano(), t.UnixNano())
+		t := now.Add(time.Millisecond * time.Duration(r.Int63n(1000)) + 1)
 		value := fmt.Sprintf("%v:value:%v", name, strconv.Itoa(i))
 		// create a delayed task
 		item := gtimer.NewDelayedItemFunc(t, value, DefaultAction)
-		log.Infof("%v", item.OnTrigger)
 		timer.Add(item)
 	}
 }
@@ -96,3 +105,18 @@ type Item struct {
 	OnTrigger func(time.Time, string)
 }
 ```
+
+## Performance
+CPU Model Name: 2.3 GHz Intel Core i5
+CPU Processors: 4
+Memory: 8GB
+
+### Test Results:
+|produce goroutines count|consume goroutines count|qps(per second)|
+|:---|:---|:---|:---|
+|1|1|1000|
+|5|1|480|
+|1|5|1000|
+|5|5|490|
+
+
