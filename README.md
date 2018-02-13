@@ -114,23 +114,13 @@ type Item struct {
 
 ### Test Results        
 
-|produce_goroutines_count| consume_goroutines_count | qps |
-|:---|:---|:---|:---|
-|1|1|10000|
-|5|1|10000|
-|1|5|10000|
-|5|5|10000|
-
-
-##### Test Results:
 
 | produce goroutines count | consume goroutines count | qps(k/s) | 
 | -------------------------:| ----------------------:| ------------------:| 
-| 1                         | 1                      | 8                  |  
-| 2                         | 2                      | 16                 |  
-| 3                         | 3                      | 24                 |   
-| 4                         | 4                      | 32                 |   
-| 5                         | 5                      | 40                 |    
+| 1                         | 1                      | 10000                  |  
+| 5                         | 1                      | 10000                |  
+| 1                         | 5                      | 10000                 |   
+| 5                         | 5                      | 10000                |   
 
 
 
