@@ -31,7 +31,7 @@ package main
 import (
 	"fmt"
 	"time"
-	"gtimer"
+	"github.com/vearne/gtimer"
 	"strconv"
 	"math/rand"
 	"sync"
