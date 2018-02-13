@@ -113,11 +113,15 @@ type Item struct {
 `Memory`: 8GB    
 
 ### Test Results    
+
+
 | produce goroutines count | consume goroutines count | qps(per second) |
 |:---|:---|:---|:---|
 |1|1|10000|
 |5|1|10000|
 |1|5|10000|
 |5|5|10000|
+
+
 
 
