@@ -90,10 +90,12 @@ func push(timer *gtimer.SuperTimer, name string){
 ```
 
 use NewDelayedItemFunc, we can create a task
+
 ```
 // triggerTime is time of the task should be execute
 func NewDelayedItemFunc(triggerTime time.Time, value string, f func(time.Time, string)) *Item
 ```
+
 task struct like 
 ```
 type Item struct {
@@ -107,13 +109,13 @@ type Item struct {
 ```
 
 ## Performance
-
-CPU Model Name: 2.3 GHz Intel Core i5
-CPU Processors: 4
-Memory: 8GB
+----
+`CPU Model Name`: 2.3 GHz Intel Core i5
+`CPU Processors`: 4
+`Memory`: 8GB
 
 ### Test Results:
-
+----
 |produce goroutines count|consume goroutines count|qps(per second)|
 |:---|:---|:---|:---|
 |1|1|10000|
