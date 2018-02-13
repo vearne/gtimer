@@ -115,7 +115,7 @@ type Item struct {
 ### Test Results    
 
 
-| produce goroutines count | consume goroutines count | qps|   
+|produce goroutines count|consume goroutines count|qps|     
 |:---|:---|:---|:---|   
 |1|1|10000|   
 |5|1|10000|   
