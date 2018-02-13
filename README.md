@@ -31,7 +31,7 @@ package main
 import (
 	"fmt"
 	"time"
-	"github.com/vearne/gtimer"
+	"gtimer"
 	"strconv"
 	"math/rand"
 	"sync"
@@ -45,19 +45,19 @@ func main(){
 	wg := sync.WaitGroup{}
 	timer := gtimer.NewSuperTimer(1)
 	// concurrent push task
-	for i:=0;i<5;i++{
+	for i:=0;i<1;i++{
 		wg.Add(1)
 		go push(timer, "worker" + strconv.Itoa(i))
 		wg.Done()
 	}
-	wg.Wait()
+	// wg.Wait()
 	log.Infof("[producer]------push ok-------")
 	go func(){
 		log.Infof("[start]try to stop")
 		time.Sleep(5 * time.Second)
 		for {
 			if timer.Size() > 0{
-				time.Sleep(2)
+				time.Sleep(1)
 			}else{
 				break
 			}
@@ -78,9 +78,9 @@ func DefaultAction(t time.Time, value string){
 
 func push(timer *gtimer.SuperTimer, name string){
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i:=0;i< 3000;i++{
+	for i:=0;i< 10000;i++{
 		now := time.Now()
-		t := now.Add(time.Millisecond * time.Duration(r.Int63n(1000)) + 1)
+		t := now.Add(time.Millisecond * time.Duration(r.Int63n(300)) + 1 * time.Second)
 		value := fmt.Sprintf("%v:value:%v", name, strconv.Itoa(i))
 		// create a delayed task
 		item := gtimer.NewDelayedItemFunc(t, value, DefaultAction)
@@ -114,9 +114,9 @@ Memory: 8GB
 ### Test Results:
 |produce goroutines count|consume goroutines count|qps(per second)|
 |:---|:---|:---|:---|
-|1|1|1000|
-|5|1|480|
-|1|5|1000|
-|5|5|490|
+|1|1|10000|
+|5|1|10000|
+|1|5|10000|
+|5|5|10000|
 
 
