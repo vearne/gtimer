@@ -3,10 +3,7 @@ package gtimer
 
 import (
 	"container/heap"
-	"time"
-	log "github.com/sirupsen/logrus"
 )
-
 
 // A PriorityQueue implements heap.Interface and holds Items.
 type PriorityQueue []*Item
@@ -33,7 +30,7 @@ func (pq *PriorityQueue) Push(x interface{}) {
 func (pq *PriorityQueue) Pop() interface{} {
 	old := *pq
 	n := len(old)
-	item := old[n - 1]
+	item := old[n-1]
 	item.index = -1 // for safety
 	*pq = old[0 : n-1]
 	return item
@@ -49,21 +46,12 @@ func (pq *PriorityQueue) update(item *Item, value string, priority int64) {
 func (pq *PriorityQueue) Peek() interface{} {
 	old := *pq
 	n := len(old)
-	if n <= 0{
+	if n <= 0 {
 		return nil
 	}
 	return old[0]
 }
 
-func (pq *PriorityQueue) Clear(){
+func (pq *PriorityQueue) Clear() {
 	pq = nil
-}
-
-func (pq *PriorityQueue) Dump(){
-	old := *pq
-	log.Debugf("---------------------")
-	for i, v:= range old{
-		log.Debugf("index:%v, item:%v, delayed:%v\n", i, v, (v.priority - time.Now().UnixNano()) / 1000000000)
-	}
-	log.Debugf("---------------------")
 }

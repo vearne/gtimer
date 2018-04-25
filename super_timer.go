@@ -2,7 +2,6 @@ package gtimer
 
 import (
 	"container/heap"
-	log "github.com/sirupsen/logrus"
 	"sync"
 	"time"
 )
@@ -15,12 +14,9 @@ type SuperTimer struct {
 	Wgp         *sync.WaitGroup
 	ExitChan    chan int
 	RunningFlag bool
-	// 最小等待时间
-	// 为了防止频繁的设置定时器，参考时间轮的思想，通过降低时间精度，减少sleep和唤醒的次数
-	MinWait time.Duration
 }
 
-func NewSuperTimer(workCount int, minWait time.Duration) *SuperTimer {
+func NewSuperTimer(workCount int) *SuperTimer {
 	timer := SuperTimer{}
 	timer.lock = &sync.Mutex{}
 	timer.UniTimer = time.NewTimer(time.Second * 10)
@@ -29,7 +25,6 @@ func NewSuperTimer(workCount int, minWait time.Duration) *SuperTimer {
 	timer.Wgp = &sync.WaitGroup{}
 	timer.ExitChan = make(chan int, 100)
 	timer.RunningFlag = true
-	timer.MinWait = minWait
 
 	for i := 0; i < timer.WorkerCount; i++ {
 		go timer.Consume()
@@ -43,29 +38,23 @@ func (timer *SuperTimer) Consume() {
 	for timer.RunningFlag {
 		select {
 		case <-timer.ExitChan:
-			log.Debug("ExitChan")
 			break
 		case <-timer.UniTimer.C:
 			item := timer.Take()
-			log.Debugf("[consumer]%v\n", item)
 			if item != nil {
-				log.Debugf("[consumer]%v, item:%v, %v\n", time.Now(), item.priority, item.value)
 				t := time.Unix(item.priority/1000000000, item.priority%1000000000)
 				item.OnTrigger(t, item.value)
 			}
 		}
 	}
-	log.Debugf("worker exit")
 }
 
 func (st *SuperTimer) Add(pItem *Item) {
 	st.lock.Lock()
 	defer st.lock.Unlock()
 	heap.Push(&st.PQ, pItem)
-	log.Debugf("[producer] PQ size:%v", len(st.PQ))
 	peek := st.PQ.Peek().(*Item)
 	if peek == pItem {
-		log.Debugf("[producer] reset:%v", pItem.GetDelay())
 		st.UniTimer.Reset(pItem.GetDelay())
 	}
 }
@@ -73,22 +62,15 @@ func (st *SuperTimer) Add(pItem *Item) {
 func (st *SuperTimer) Take() *Item {
 	st.lock.Lock()
 	defer st.lock.Unlock()
-	log.Debugf("[producer] PQ size:%v", len(st.PQ))
 	if len(st.PQ) <= 0 {
-		st.UniTimer.Reset(time.Second * 5)
-		log.Debugf("[consumer]reset %v", 5)
+		st.UniTimer.Reset(time.Second * 1)
 		return nil
 	}
 
 	item := st.PQ.Peek()
 	target := item.(*Item)
 	if target.GetDelay() > 0 {
-		t := target.GetDelay()
-		if t < st.MinWait {
-			t = st.MinWait
-		}
-		st.UniTimer.Reset(t)
-		log.Debugf("[consumer]reset %v, target:%v, now:%v", target.GetDelay(), target.priority, time.Now().UnixNano())
+		st.UniTimer.Reset(target.GetDelay())
 		return nil
 	}
 
@@ -101,7 +83,6 @@ func (st *SuperTimer) Take() *Item {
 func (st *SuperTimer) Stop() {
 	st.lock.Lock()
 	defer st.lock.Unlock()
-	log.Infof("------- stop ------")
 	// 强制工作线程退出
 	st.PQ.Clear()
 	st.RunningFlag = false
