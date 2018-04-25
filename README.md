@@ -27,60 +27,57 @@ import "github.com/vearne/gtimer"
 ```
 package main
 
-
 import (
 	"fmt"
-	"time"
-	"github.com/vearne/gtimer"
-	"strconv"
-	"math/rand"
-	"sync"
 	log "github.com/sirupsen/logrus"
+	"github.com/vearne/gtimer"
+	"math/rand"
+	"strconv"
+	"sync/atomic"
+	"time"
 )
 
+const (
+	PRODUCER_COUNT = 10
+	CONSUMER_COUNT = 10
+	TARGET_COUNT   = 1000000
+)
 
+var ops int64 = 0
 
-func main(){
+func main() {
+	st := gtimer.NewSuperTimer(CONSUMER_COUNT, time.Second)
+	// st := gtimer.NewSuperTimer(CONSUMER_COUNT, 0)
 	t1 := time.Now()
-	wg := sync.WaitGroup{}
-	timer := gtimer.NewSuperTimer(1)
-	// concurrent push task
-	for i:=0;i<1;i++{
-		wg.Add(1)
-		go push(timer, "worker" + strconv.Itoa(i))
-		wg.Done()
+	for i := 0; i < PRODUCER_COUNT; i++ {
+		go push(st, "worker"+strconv.Itoa(i))
 	}
-	// wg.Wait()
-	log.Infof("[producer]------push ok-------")
-	go func(){
-		log.Infof("[start]try to stop")
-		time.Sleep(5 * time.Second)
-		for {
-			if timer.Size() > 0{
-				time.Sleep(1)
-			}else{
-				break
-			}
+
+	time.Sleep(100 * time.Millisecond)
+
+	for {
+		v := atomic.LoadInt64(&ops)
+		if v >= TARGET_COUNT {
+			st.Stop()
+			break
+		} else {
+			time.Sleep(100 * time.Millisecond)
 		}
-		timer.Stop()
-		log.Infof("[end]try to stop")
-	}()
-	// wait until stop
-	timer.Wait()
+	}
 	t2 := time.Now()
 	log.Infof("cost:%v\n", t2.Sub(t1))
-
 }
 
-func DefaultAction(t time.Time, value string){
-	fmt.Printf("trigger_time:%v, value:%v\n", t, value)
+func DefaultAction(t time.Time, value string) {
+	// fmt.Printf("trigger_time:%v, value:%v\n", t, value)
+	atomic.AddInt64(&ops, 1)
 }
 
-func push(timer *gtimer.SuperTimer, name string){
+func push(timer *gtimer.SuperTimer, name string) {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for i:=0;i< 10000;i++{
+	for i := 0; i < 1000000; i++ {
 		now := time.Now()
-		t := now.Add(time.Millisecond * time.Duration(r.Int63n(300)) + 1 * time.Second)
+		t := now.Add(time.Millisecond * time.Duration(r.Int63n(300)))
 		value := fmt.Sprintf("%v:value:%v", name, strconv.Itoa(i))
 		// create a delayed task
 		item := gtimer.NewDelayedItemFunc(t, value, DefaultAction)
@@ -112,15 +109,16 @@ type Item struct {
 `CPU Processors`: 4     
 `Memory`: 8GB   
 
-### Test Results        
+### Benchmark Test Results        
 
 
 | produce goroutines count | consume goroutines count | qps(per second) | 
-| -------------------------:| ----------------------:| ------------------:| 
-| 1                         | 1                      | 10000                  |  
-| 5                         | 1                      | 10000                |  
-| 1                         | 5                      | 10000                 |   
-| 5                         | 5                      | 10000                |   
+| ---------:| ----------:| --------:| 
+| 1| 1                      | 285714             |  
+| 10| 10                    | 90090                |  
+| 10| 100                   | 89285              |  
+| 100| 100                  | 23255              |  
+
 
 
 
