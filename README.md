@@ -29,8 +29,9 @@ package main
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"github.com/vearne/gtimer"
+	"log"
+	// "gtimer"
 	"math/rand"
 	"strconv"
 	"sync/atomic"
@@ -46,8 +47,7 @@ const (
 var ops int64 = 0
 
 func main() {
-	st := gtimer.NewSuperTimer(CONSUMER_COUNT, time.Second)
-	// st := gtimer.NewSuperTimer(CONSUMER_COUNT, 0)
+	st := gtimer.NewSuperTimer(CONSUMER_COUNT)
 	t1 := time.Now()
 	for i := 0; i < PRODUCER_COUNT; i++ {
 		go push(st, "worker"+strconv.Itoa(i))
@@ -65,7 +65,7 @@ func main() {
 		}
 	}
 	t2 := time.Now()
-	log.Infof("cost:%v\n", t2.Sub(t1))
+	log.Printf("cost:%v\n", t2.Sub(t1))
 }
 
 func DefaultAction(t time.Time, value string) {
