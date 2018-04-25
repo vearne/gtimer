@@ -24,7 +24,7 @@ func push(timer *SuperTimer, name string) {
 }
 
 func Test_timer(t *testing.T) {
-	timer := NewSuperTimer(5, time.Second)
+	timer := NewSuperTimer(5)
 	for i := 0; i < 5; i++ {
 		go push(timer, "worker"+strconv.Itoa(i))
 	}
