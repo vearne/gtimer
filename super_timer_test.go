@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func DefaultAction(t time.Time, value string) {
+func DefaultAction(t time.Time, value interface{}) {
 	fmt.Printf("trigger_time:%v, value:%v\n", t, value)
 }
 

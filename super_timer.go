@@ -42,7 +42,7 @@ func (timer *SuperTimer) Consume() {
 		case <-timer.UniTimer.C:
 			item := timer.Take()
 			if item != nil {
-				t := time.Unix(item.priority/1000000000, item.priority%1000000000)
+				t := time.Unix(item.priority/int64(time.Second), item.priority%int64(time.Second))
 				item.OnTrigger(t, item.value)
 			}
 		}

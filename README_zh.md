@@ -1,17 +1,17 @@
 # timer
-Timer based on delayqueue
+基于delayqueue实现的定时器
 
-* [中文 README](https://github.com/vearne/gtimer/blob/master/README_zh.md)
+* [English README](https://github.com/vearne/gtimer/blob/master/README.md)
 
-# Design and implementation
-The implementation is inspired by Java DelayQueue.java
-Portal:
+# 实现
+实现受到了Java DelayQueue.java的启发
+源码地址
 [DelayQueue.java](http://www.docjar.com/html/api/java/util/concurrent/DelayQueue.java.html)
 
-The dependent structures are as follows:
+依赖的几个结构依次为为
 timer -> delayqueue -> priorityqueue -> heap
 
-# Installation
+# 安装
 ## Install:
 
 ```
@@ -23,8 +23,8 @@ import "github.com/vearne/gtimer"
 ```
 
 
-## Quick Start
-[more examples](https://github.com/vearne/gtimer/blob/master/example)
+## 快速开始
+[更多示例](https://github.com/vearne/gtimer/blob/master/example)
 ```
 package main
 
@@ -48,25 +48,21 @@ func main() {
 }
 ```
 
-## Performance
+## 性能
 
 `CPU Model Name`: 2.3 GHz Intel Core i5     
 `CPU Processors`: 4     
 `Memory`: 8GB
 
-### Benchmark Test Results
+### 压测结果
 
 
-| produce goroutines count | consume goroutines count | qps(per second) | 
+| 生产者数量 | 消费者数量 | QPS | 
 | ---------:| ----------:| --------:| 
 | 1| 1                      | 285714             |  
 | 10| 10                    | 90090                |  
 | 10| 100                   | 89285              |  
 | 100| 100                  | 23255              |  
-
-
-
-
 
 
 
