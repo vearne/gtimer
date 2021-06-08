@@ -33,3 +33,7 @@ func Stop() {
 func Wait() {
 	defaultTimer.Wait()
 }
+
+func Size() int {
+	return defaultTimer.Size()
+}

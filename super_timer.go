@@ -7,7 +7,7 @@ import (
 )
 
 type SuperTimer struct {
-	lock        *sync.Mutex
+	lock        *sync.RWMutex
 	PQ          PriorityQueue
 	UniTimer    *time.Timer
 	WorkerCount int
@@ -18,7 +18,7 @@ type SuperTimer struct {
 
 func NewSuperTimer(workCount int) *SuperTimer {
 	timer := SuperTimer{}
-	timer.lock = &sync.Mutex{}
+	timer.lock = &sync.RWMutex{}
 	timer.UniTimer = time.NewTimer(time.Second * 10)
 	timer.PQ = make(PriorityQueue, 0, 100)
 	timer.WorkerCount = workCount
@@ -83,7 +83,6 @@ func (st *SuperTimer) Take() *Item {
 func (st *SuperTimer) Stop() {
 	st.lock.Lock()
 	defer st.lock.Unlock()
-	// 强制工作线程退出
 	st.PQ.Clear()
 	st.RunningFlag = false
 	close(st.ExitChan)
@@ -95,5 +94,8 @@ func (st *SuperTimer) Wait() {
 }
 
 func (st *SuperTimer) Size() int {
+	st.lock.RLock()
+	defer st.lock.RUnlock()
+
 	return len(st.PQ)
 }
