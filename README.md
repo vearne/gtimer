@@ -1,5 +1,5 @@
 # timer
-![build_ci](https://travis-ci.com/vearne/gtimer.svg?branch=master)
+[![golang-ci](https://github.com/vearne/gtimer/actions/workflows/golang-ci.yml/badge.svg)](https://github.com/vearne/gtimer/actions/workflows/golang-ci.yml)
 
 Timer based on delayqueue
 
