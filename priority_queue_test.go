@@ -37,7 +37,6 @@ func Test_Priority_queue(t *testing.T) {
 		priority: 5,
 	}
 	heap.Push(&pq, item)
-	// pq.update(item, item.value, 5)
 
 	// Take the items out; they arrive in decreasing priority order.
 	for pq.Len() > 0 {

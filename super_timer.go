@@ -59,6 +59,12 @@ func (st *SuperTimer) Add(pItem *Item) {
 	}
 }
 
+func (st *SuperTimer) Remove(pItem *Item) {
+	st.lock.Lock()
+	defer st.lock.Unlock()
+	st.PQ.Remove(pItem)
+}
+
 func (st *SuperTimer) Take() *Item {
 	st.lock.Lock()
 	defer st.lock.Unlock()
