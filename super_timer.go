@@ -6,13 +6,14 @@ import (
 	"time"
 )
 
+//nolint: govet
 type SuperTimer struct {
+	Wgp         *sync.WaitGroup
 	lock        *sync.RWMutex
-	PQ          PriorityQueue
 	UniTimer    *time.Timer
 	WorkerCount int
-	Wgp         *sync.WaitGroup
 	ExitChan    chan int
+	PQ          PriorityQueue
 	RunningFlag bool
 }
 

@@ -57,5 +57,5 @@ func (pq *PriorityQueue) Peek() interface{} {
 }
 
 func (pq *PriorityQueue) Clear() {
-	pq = nil
+	*pq = make([]*Item, 0)
 }
