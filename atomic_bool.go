@@ -15,7 +15,7 @@ func (*noCopy) Lock() {}
 // atomicBool is a wrapper around uint32 for usage as a boolean value with
 // atomic access.
 type AtomicBool struct {
-	_noCopy noCopy
+	_noCopy noCopy //nolint:unused
 	value   uint32
 }
 
