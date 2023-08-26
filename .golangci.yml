@@ -18,3 +18,8 @@ linters-settings:
   govet:            # 对于linter govet，我们手动开启了它的某些扫描规则
     check-shadowing: true
     enable-all: true
+
+run:
+  skip-dirs:
+    - example
+
